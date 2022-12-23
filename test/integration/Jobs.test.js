@@ -5,6 +5,8 @@ const app = require('../../src/app');
 
 const {Profile, Contract, Job} = app.get('models');
 
+console.warn = jest.fn();
+
 describe("Jobs API: ", function() {
   let client, contractor, newContract;
 
@@ -87,5 +89,78 @@ describe("Jobs API: ", function() {
 
       expect(response.body.length).toEqual(0);
     });
+  });
+
+  describe("POST - /jobs/:id/pay, ", function() {
+    const sizeJobs = 5;
+    let job;
+    beforeEach(async() => {    
+      await Job.sync({ force: true });
+      
+      job = await Job.create({
+        description: casual.description,
+        price: client.balance,
+        ContractId: newContract.id,
+      });
+    });
+
+    it("should return erro 401 when not authenticated", async function() {
+      await request(app)
+        .post(`/jobs/${job.id}/pay`)
+        .expect(401);
+    });
+
+    it("should do the payment of job", async function() {
+      const newBalanceContractor = contractor.balance + job.price;
+      await request(app)
+        .post(`/jobs/${job.id}/pay`)
+        .set('profile_id', client.id)
+        .expect(200);
+
+      const newContractor = await Profile.findByPk(contractor.id);
+      expect(newContractor.balance).toEqual(newBalanceContractor);
+
+      const newClient = await Profile.findByPk(client.id);
+      expect(newClient.balance).toEqual(0);
+
+      const newJob = await Job.findByPk(job.id)      
+      expect(newJob.paid).toEqual(true);
+      expect(newJob.paymentDate).not.toBeNull();
+    });
+
+    it("should return error if contractor not have balance", async function() {
+      contractor.balance += 10000
+      await contractor.save()
+
+      const response = await request(app)
+        .post(`/jobs/${job.id}/pay`)
+        .set('profile_id', client.id)
+        .expect(409);
+
+      expect(response.body).toEqual('Client don\'t have balance to pay');
+    });
+
+    it("should return error if not found a job", async function() {
+      const response = await request(app)
+        .post(`/jobs/${job.id + 1000}/pay`)
+        .set('profile_id', client.id)
+        .expect(409);
+
+      expect(response.body).toEqual('Job not found.');
+    });
+
+    it("should return error if was job paid", async function() {
+      job.paid = true;
+      job.paymentDate = casual.moment;
+      await job.save();
+
+      const response = await request(app)
+        .post(`/jobs/${job.id}/pay`)
+        .set('profile_id', client.id)
+        .expect(409);
+
+      expect(response.body).toEqual('Job was paid');
+    });
+
   });
 })

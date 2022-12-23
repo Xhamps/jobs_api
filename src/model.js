@@ -51,7 +51,21 @@ Contract.init(
   }
 );
 
-class Job extends Sequelize.Model {}
+class Job extends Sequelize.Model {
+  async pay() {
+    const { Contract: {Client, Contractor} } = this
+
+    if(this.paid) throw new Error('Job was paid')
+    if(Client.balance - this.price < 0) throw new Error('Client don\'t have balance to pay')
+    
+    Client.balance -= this.price;
+
+    Contractor.balance += this.price;
+
+    this.paid = true;
+    this.paymentDate = new Date();
+  }
+}
 Job.init(
   {
     description: {
