@@ -27,7 +27,7 @@ describe("Contracts API: ", function() {
       });
   });
 
-  describe("POST - /contracts/:id, ", function() {
+  describe("GET - /contracts/:id, ", function() {
     beforeAll(async() => {    
       await Contract.sync({ force: true });
     });
@@ -66,6 +66,57 @@ describe("Contracts API: ", function() {
         .get(`/contracts/${contract.id * 10000}`)
         .set('profile_id', client.id)
         .expect(404);
+    });
+  });
+
+  describe("GET - /contracts, ", function() {
+    beforeEach(async() => {
+      await Contract.sync({ force: true });
+    });
+
+    it("should return erro 401 when not authenticated", async function() {
+      await request(app)
+        .get(`/contracts`)
+        .expect(401);
+    });
+
+    it("should return all contracts not terminated", async function() {
+      const sizeContracts = 5;
+      const allContracts = await Promise.all(Array(sizeContracts).fill(null).map(() => {
+        return Contract.create({
+          terms: casual.word,
+          status: casual.random_element(['new','in_progress','terminated']),
+          ClientId: client.id,
+          ContractorId: contractor.id
+        });
+      }));
+
+      const response = await request(app)
+        .get(`/contracts`)
+        .set('profile_id', client.id)
+        .expect(200);
+
+      const numContractsNotTerminated = allContracts.filter(({ status })=> status != 'terminated').length
+      expect(response.body.length).toEqual(numContractsNotTerminated);
+    });
+
+    it("should return empty array if all contracts are terminated", async function() {
+      const sizeContracts = 5;
+      await Promise.all(Array(sizeContracts).fill(null).map(() => {
+        return Contract.create({
+          terms: casual.word,
+          status: 'terminated',
+          ClientId: client.id,
+          ContractorId: contractor.id
+        });
+      }));
+
+      const response = await request(app)
+        .get(`/contracts`)
+        .set('profile_id', client.id)
+        .expect(200);
+
+      expect(response.body.length).toEqual(0);
     });
   });
 })
