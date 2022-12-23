@@ -6,7 +6,7 @@ const app = require('../../src/app');
 const {Profile, Contract} = app.get('models');
 
 describe("Contracts API: ", function() {
-  let client, contract;
+  let client, contractor, contract;
 
   beforeAll(async ()=> {
     await Profile.sync({ force: true });
