@@ -1,4 +1,4 @@
-const { Op, col, fn } = require('sequelize');
+const { Op, col, fn, literal } = require('sequelize');
 const BaseRepository = require('./BaseRepository');
 
 class ProfileRepository extends BaseRepository {
@@ -44,6 +44,28 @@ class ProfileRepository extends BaseRepository {
       }],
       group: [ 'Contract.Contractor.id' ],
       order: [ [fn('sum', col('Job.price')), 'DESC'] ]
+    });
+  }
+
+  async getBestClient(start, end, limit) {
+    const {Profile, Contract, Job} = this.Models;
+    return await Job.findAll({
+      where: { 
+        paymentDate: { [Op.between]: [start.toISOString(), end.toISOString()] }
+      },
+      attributes: [
+        [col('Contract.Client.id'), 'id'], 
+        [literal("`Contract->Client`.`firstName` || ' ' || `Contract->Client`.`lastName`"), 'full_name'],
+        [fn('sum', col('Job.price')), 'paid']
+      ],
+      include: [{ 
+        model: Contract,
+        attributes: [],  
+        include: [{ model: Profile, as: 'Client', attributes: [] }]
+      }],
+      group: [ 'Contract.Client.id' ],
+      order: [ ['paid', 'DESC'] ],
+      limit
     });
   }
 }

@@ -12,4 +12,16 @@ class AdminBestProfession {
   }
 }
 
-module.exports = { AdminBestProfession };
+class AdminBestClients {
+  constructor(profileRepository) {
+    this.profileRepository = profileRepository;
+  }
+
+  async execute(start, end, limit = 2) {
+    const parsedStartDate = parseStartDate(start);
+    const parsedEndDate = parseEndDate(end);
+    return await this.profileRepository.getBestClient(parsedStartDate, parsedEndDate, limit);
+  }
+}
+
+module.exports = { AdminBestProfession, AdminBestClients };
