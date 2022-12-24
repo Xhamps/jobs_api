@@ -10,5 +10,5 @@ module.exports = {
   coverageReporters: ['lcov', 'html', 'text'],
   modulePathIgnorePatterns: ['dist', 'node_modules', 'coverage'],
   coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: [ '/node_modules/']
+  coveragePathIgnorePatterns: [ '/node_modules/', '/test/']
 };
