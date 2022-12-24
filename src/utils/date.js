@@ -2,7 +2,7 @@ const getTimezoneOffset = () => (new Date()).getTimezoneOffset() / 60;
 
 const parseDate = function (date) {
   const parsedDate = /^(\d{4})-(\d{1,2})(-(\d{1,2}))?$/.exec(date);
-  if(!parsedDate) throw new Error('This Date is not valid');
+  if(!parsedDate) throw new Error('The date format is invalid.');
   return {
     year: parsedDate[1],
     month: parsedDate[2],

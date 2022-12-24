@@ -68,7 +68,7 @@ describe("Admin API: ", function() {
       const result = await request(app)
         .get(`/admin/best-profession`)
         .set('profile_id', clients[0].id)
-        .expect(400); 
+        .expect(409); 
     });
   });
 
@@ -128,7 +128,7 @@ describe("Admin API: ", function() {
       const result = await request(app)
         .get(`/admin/best-clients`)
         .set('profile_id', clients[0].id)
-        .expect(400); 
+        .expect(409); 
     });
   });
 });

@@ -3,7 +3,7 @@ const { parseStartDate, parseEndDate } = require('../../../src/utils/date');
 describe("Utils Date: ", function() {
   describe("parseStartDate, ", function() {
     it("should return error with receive the wrong date", () => {
-      expect(() => parseStartDate('2023212-03248')).toThrow(new Error('This Date is not valid'))
+      expect(() => parseStartDate('2023212-03248')).toThrow(new Error('The date format is invalid.'))
     });
 
     it("should return the date with the first day of the month and the first hour", () => {
@@ -17,7 +17,7 @@ describe("Utils Date: ", function() {
 
   describe("parseEndDate, ", function() {
     it("should return error with receive the wrong date", () => {
-      expect(() => parseEndDate('2023212-03248')).toThrow(new Error('This Date is not valid'))
+      expect(() => parseEndDate('2023212-03248')).toThrow(new Error('The date format is invalid.'))
     });
 
     it("should return the date with the last day of the month and the last hour", () => {

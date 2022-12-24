@@ -63,3 +63,13 @@ To check the test coverage, use this command:
 ```shell
  $ npm run test:coverage
 ```
+
+### 5. Documentation
+
+In addition to this document we have other documentation.
+We are using JSDocs along with swagger to do the documentation for our APIs. You can look this documentation on all files inside the routes folder, the path: '/src/routes/*'.
+After running the server, you can see all this documentation and play with the endpotins, at this url:
+
+```
+ http://localhost:3001/api-docs/
+```
