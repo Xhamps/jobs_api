@@ -6,7 +6,19 @@ const sequelize = new Sequelize({
   logging: false
 });
 
-class Profile extends Sequelize.Model {}
+class Profile extends Sequelize.Model {
+  async updateBalance(amount) {
+    const jobs = this.Client.reduce((listJobs,  { Jobs }) => listJobs.concat(Jobs), []);
+    const sumJobs = jobs.filter(({paid}) => !paid)
+        .reduce((sum, { price }) => sum + price , 0)
+
+        console.log(jobs.length, sumJobs, amount)
+
+    if(amount > ( sumJobs * 0.25)) throw new Error("Client try deposit more than 25% his total of jobs to pay")
+
+    this.balance += amount
+  }
+}
 Profile.init(
   {
     firstName: {
